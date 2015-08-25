@@ -31,38 +31,38 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  // var solution = new Board({n: n});
-  // var solutionCount = 0;
+  var solution = new Board({n: n});
+  var solutionCount = 0;
 
-  // var findSolutions = function(currentRow) {
+  var findSolutions = function(currentRow) {
 
-  //   if (currentRow === n) {
-  //     solutionCount++;
-  //     return;
-  //   }
+    if (currentRow === n) {
+      solutionCount++;
+      return;
+    }
 
-  //   // console.log('Before work, board is: ', board.rows());
+    // console.log('Before work, board is: ', board.rows());
 
-  //   for (var i = 0; i < n; i++) {
-  //     solution.togglePiece(currentRow, i);
+    for (var i = 0; i < n; i++) {
+      solution.togglePiece(currentRow, i);
 
-  //     // if (!!solution.hasAnyRooksConflicts()) {
-  //     //   solution.togglePiece(currentRow, i);
-  //     // }
-  //     // findSolutions(currentRow + 1);
+      // if (!!solution.hasAnyRooksConflicts()) {
+      //   solution.togglePiece(currentRow, i);
+      // }
+      // findSolutions(currentRow + 1);
 
-  //     if(!solution.hasAnyRooksConflicts()) {
-  //       findSolutions(currentRow + 1);
-  //     }
-  //     solution.togglePiece(currentRow, i);
-  //   }
+      if(!solution.hasColConflictAt(i)) {
+        findSolutions(currentRow + 1);
+      }
+      solution.togglePiece(currentRow, i);
+    }
 
-  // };
+  };
 
-  // findSolutions(0);
+  findSolutions(0);
 
-  // console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
-  // return solutionCount;
+  console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
+  return solutionCount;
 
 };
 
@@ -73,11 +73,14 @@ window.findNQueensSolution = function(n) {
   var solution = new Board({'n': n});
   var solutionCount = 0;
   var solutionArray;
+  var setSolutionArray = _.once(function() {
+    solutionArray = JSON.stringify(solution.rows());
+  });
 
   var findSolutions = function(currentRow) {
 
     if (currentRow === n) {
-      solutionArray = JSON.stringify(solution.rows());
+      setSolutionArray();
       solutionCount++;
       return;
     }
@@ -102,7 +105,8 @@ window.findNQueensSolution = function(n) {
 
   findSolutions(0);
 
-  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution.rows()));
+  console.log('Single solution for ' + n + ' queens:', solutionArray);
+  console.log(JSON.parse(solutionArray));
   return JSON.parse(solutionArray);
 };
 
@@ -129,7 +133,7 @@ window.countNQueensSolutions = function(n) {
       // }
       // findSolutions(currentRow + 1);
 
-      if(!solution.hasAnyQueensConflicts()) {
+      if(!solution.hasAnyQueenConflictsOn(currentRow, i)) {
         findSolutions(currentRow + 1);
       }
       solution.togglePiece(currentRow, i);
