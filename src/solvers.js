@@ -23,7 +23,7 @@ window.findNRooksSolution = function(n) {
     solution.set(i,row);
   }
 
-  console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
+  // console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution.rows();
 };
 
@@ -31,7 +31,51 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solution = undefined; //fixme
+
+  var Tree = function(value) {
+    var newTree = {};
+    newTree.value = value;
+    newTree.children = [];
+    newTree.addChild = function(value) {
+      this.children.push(Tree(new Board(value)));
+    };
+    return newTree;
+  };
+
+  var solution = Tree(new Board({n: n}));
+
+  var solutionCount = 0;
+
+  console.log('This is solution: ', solution)
+
+  var runTimes = 0;
+
+  var findSolutions = function(node, currentRow) {
+
+    // console.log('Working on tree level: ', currentRow, 'for n = ', n);
+    runTimes++;
+    console.log('findSolutions has been called: ' , runTimes);
+    debugger;
+    for (var i = 0; i < n; i++) {
+      node.addChild(node.value.rows()); 
+      console.log('Current node is this: ', node.value.rows());
+      var childBoard = node.children[i].value;
+      childBoard.togglePiece(currentRow, i);
+      var newRow = node.value.rows()[i];
+      console.log('Current row, i: ', currentRow, i);
+      console.log('Attributes are: ', childBoard.attributes);
+
+      if (!(childBoard.hasAnyRooksConflicts())) {
+        if (currentRow === n-1) {
+          solutionCount++;
+        } else {
+          findSolutions(node.children[i], currentRow + 1);
+        }
+      }
+    }
+  };
+
+  findSolutions(solution, 0);
 
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
