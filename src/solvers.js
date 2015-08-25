@@ -31,54 +31,40 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-
-  var Tree = function(value) {
-    var newTree = {};
-    newTree.value = value;
-    newTree.children = [];
-    newTree.addChild = function(value) {
-      this.children.push(Tree(new Board(value)));
-    };
-    return newTree;
-  };
-
-  var solution = Tree(new Board({n: n}));
-
+  var solution = new Board({n: n});
   var solutionCount = 0;
 
-  console.log('This is solution: ', solution)
+  var findSolutions = function(currentRow) {
 
-  var runTimes = 0;
-
-  var findSolutions = function(node, currentRow) {
-
-    // console.log('Working on tree level: ', currentRow, 'for n = ', n);
-    runTimes++;
-    console.log('findSolutions has been called: ' , runTimes);
-    debugger;
-    for (var i = 0; i < n; i++) {
-      node.addChild(node.value.rows()); 
-      console.log('Current node is this: ', node.value.rows());
-      var childBoard = node.children[i].value;
-      childBoard.togglePiece(currentRow, i);
-      var newRow = node.value.rows()[i];
-      console.log('Current row, i: ', currentRow, i);
-      console.log('Attributes are: ', childBoard.attributes);
-
-      if (!(childBoard.hasAnyRooksConflicts())) {
-        if (currentRow === n-1) {
-          solutionCount++;
-        } else {
-          findSolutions(node.children[i], currentRow + 1);
-        }
-      }
+    if (currentRow === n) {
+      solutionCount++;
+      return;
     }
+
+    // console.log('Before work, board is: ', board.rows());
+
+    for (var i = 0; i < n; i++) {
+      solution.togglePiece(currentRow, i);
+      // console.log(solution.attributes);
+
+      // if (!!solution.hasAnyRooksConflicts()) {
+      //   solution.togglePiece(currentRow, i);
+      // }
+      //   findSolutions(currentRow + 1);
+
+      if(!solution.hasAnyRooksConflicts()) {
+        findSolutions(currentRow + 1);
+      }
+      solution.togglePiece(currentRow, i);
+    }
+
   };
 
-  findSolutions(solution, 0);
+  findSolutions(0);
 
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
+
 };
 
 
