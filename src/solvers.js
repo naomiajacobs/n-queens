@@ -71,43 +71,66 @@ window.countNRooksSolutions = function(n) {
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
   var solution = new Board({'n': n});
-  var solutionCount = 0;
-  var solutionArray;
-  var setSolutionArray = _.once(function() {
-    solutionArray = JSON.stringify(solution.rows());
-  });
+  var queens = [];
+  // var setQueens = _.once(function() {
+  //   queens = solution.rows();
+  // });
 
   var findSolutions = function(currentRow) {
 
-    if (currentRow === n) {
-      setSolutionArray();
-      solutionCount++;
-      return;
+    // if (currentRow === n) {
+    //     queens = solution.rows();      
+    //   return true;
+    // }
+
+    if (solution.hasAnyQueensConflicts()) {
+      return false;
     }
 
-    // console.log('Before work, board is: ', board.rows());
+    for (var col = 0; col < n; col++) {
+      solution.togglePiece(currentRow, col);
 
-    for (var i = 0; i < n; i++) {
-      solution.togglePiece(currentRow, i);
-
-      // if (!!solution.hasAnyRooksConflicts()) {
-      //   solution.togglePiece(currentRow, i);
-      // }
-      // findSolutions(currentRow + 1);
-
-      if(!solution.hasAnyQueensConflicts()) {
-        findSolutions(currentRow + 1);
+      if( currentRow + 1 < n) {
+        if (currentRow === n-2) {
+          // debugger;
+        }
+        var passed = findSolutions(currentRow + 1);
+        if (passed) {
+          return true;
+        }
+      } else if( solution.hasAnyQueensConflicts() ) {
+        solution.togglePiece(currentRow, col);
+        if( currentRow + 1 === n ) {
+          continue;
+        } else {
+          return false;
+        }
+      } else {
+        // setQueens();
+        queens = solution.rows();
+        return true;
       }
-      solution.togglePiece(currentRow, i);
+      
+      if (!passed) {
+        solution.togglePiece(currentRow, col);
+      }
     }
-
-  };
+    return false;
+};
 
   findSolutions(0);
 
-  console.log('Single solution for ' + n + ' queens:', solutionArray);
-  console.log(JSON.parse(solutionArray));
-  return JSON.parse(solutionArray);
+  var myBoard;
+  if( queens.length === 0 && n !== 0 ){
+    myBoard = new Board({n : n});
+  } else {
+    myBoard = new Board(queens);
+  }
+
+
+  console.log('Single solution for ' + n + ' queens:', myBoard);
+
+  return myBoard.rows();
 };
 
 
@@ -119,6 +142,7 @@ window.countNQueensSolutions = function(n) {
   var findSolutions = function(currentRow) {
 
     if (currentRow === n) {
+
       solutionCount++;
       return;
     }
